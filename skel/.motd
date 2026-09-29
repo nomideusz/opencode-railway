@@ -1,0 +1,8 @@
+
+  OpenCode cloud box
+  ------------------
+  oc            OpenCode terminal UI, attached to the web UI's server (same sessions)
+  opencode      standalone OpenCode CLI (opencode auth login, opencode models, ...)
+  gh auth login GitHub CLI (or set GH_TOKEN)
+  ~/workspace   default project folder; all of ~/ persists on the volume
+
