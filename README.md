@@ -39,7 +39,7 @@ The box ships `git`, `gh`, Node 22, Python 3 + `uv`, `build-essential`, `ripgrep
 
 Notes and limits:
 
-- Give the service at least 1 GB of RAM. OpenCode idles around 300-450 MB, and builds or test runs the agent starts need more.
+- Give the service at least 1 GB of RAM (the Trial plan's 1 GB is enough; the Free plan's 0.5 GB is not: OpenCode is OOM-killed on the first prompt). OpenCode itself uses about 0.3-0.7 GB, and builds or test runs the agent starts need more.
 - The agent runs as root with a shell. The web password is the lock: keep it strong and do not share the URL.
 - Anything installed outside `/root` is lost on redeploy; put tools in `~/.local/bin` or reinstall them.
 - There is no Docker daemon inside the box.
