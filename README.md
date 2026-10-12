@@ -1,6 +1,6 @@
 # Deploy and Host OpenCode on Railway
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template/opencode-cloud?utm_medium=integration&utm_source=button&utm_campaign=opencode-cloud)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template/opencode-cloud?referralCode=sLjDXb&utm_medium=integration&utm_source=button&utm_campaign=opencode-cloud)
 
 [OpenCode](https://opencode.ai) is the open-source AI coding agent: it reads your repo, edits files, runs commands and tests, and works with any model provider. This template runs its **web UI** on your Railway domain behind a password, on an always-on Ubuntu box with a full toolchain, so the agent keeps working when your laptop is closed and you can check in from any browser or phone. It works **the moment it deploys**: OpenCode's free Zen models need no API key.
 
