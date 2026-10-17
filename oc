@@ -1,0 +1,4 @@
+#!/bin/sh
+# OpenCode terminal UI attached to the server the web UI uses: same sessions,
+# in whatever directory you run it from. OPENCODE_SERVER_PASSWORD comes from the env.
+exec opencode --server http://127.0.0.1:4096 "$@"

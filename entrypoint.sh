@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 : "${OPENCODE_SERVER_PASSWORD:?OPENCODE_SERVER_PASSWORD is required - it is the only lock on this box}"
-export OPENCODE_SERVER_USERNAME="${OPENCODE_SERVER_USERNAME:-opencode}"
 
 # /root is a Railway volume: empty on first boot, root-owned. Seed dotfiles once
 # (flag file, not per-file checks: local docker pre-copies the image's /root into a
@@ -10,6 +9,9 @@ if [ ! -f /root/.opencode-box-seeded ]; then
   cp -af /opt/skel/. /root/ && touch /root/.opencode-box-seeded
 fi
 mkdir -p /root/.ssh /root/workspace && chmod 700 /root/.ssh
+# Volumes seeded before OpenCode 2 define an `oc` shell function on `opencode attach`,
+# which 2.x dropped; it would shadow /usr/local/bin/oc.
+sed -i '/^# `oc` = the OpenCode terminal UI attached/,/^oc() { opencode attach .*}$/d' /root/.bashrc
 
 # Persist SSH host keys on the volume so clients don't see "host key changed" after redeploys.
 mkdir -p /root/.ssh-host
@@ -41,16 +43,17 @@ done > /etc/profile.d/railway-env.sh
 # git push over https with GH_TOKEN, no interactive login.
 [ -n "${GH_TOKEN:-}" ] && gh auth setup-git >/dev/null 2>&1 || true
 
-# nginx on $PORT: /healthcheck answers only once opencode itself does; everything else
-# goes to opencode, which does its own basic auth. SSE + PTY websockets: no buffering.
-AUTH=$(printf '%s:%s' "$OPENCODE_SERVER_USERNAME" "$OPENCODE_SERVER_PASSWORD" | base64 -w0)
+# nginx on $PORT: /healthcheck answers only once opencode's API does; everything else
+# goes to opencode, whose API needs the server password (web login, pairing link or
+# basic auth as user `opencode`). SSE + PTY websockets: no buffering.
+AUTH=$(printf 'opencode:%s' "$OPENCODE_SERVER_PASSWORD" | base64 -w0)
 cat > /etc/nginx/sites-enabled/default <<CFG
 server {
   listen ${PORT} default_server;
   listen [::]:${PORT} default_server;
   client_max_body_size 100m;
   location = /healthcheck {
-    proxy_pass http://127.0.0.1:4096/global/health;
+    proxy_pass http://127.0.0.1:4096/api/info;
     proxy_set_header Authorization "Basic ${AUTH}";
   }
   location / {
@@ -73,6 +76,7 @@ nginx
 # install shows as hundreds of MB. Drop it for the home volume every 15 min.
 ( while sleep 900; do nice -n 19 drop-file-cache /root /tmp || true; done ) &
 
-echo "== opencode box ready: web UI on :${PORT} (user ${OPENCODE_SERVER_USERNAME}), sshd on :22, opencode $(opencode --version)"
+echo "== opencode box ready: web UI on :${PORT}, sshd on :22, $(opencode --version)"
 cd /root/workspace
-exec opencode web --hostname 127.0.0.1 --port 4096
+# With OPENCODE_SERVER_PASSWORD set, serve does not print the password.
+exec opencode serve --hostname 127.0.0.1 --port 4096
