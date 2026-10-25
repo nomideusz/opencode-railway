@@ -1,6 +1,7 @@
 FROM ubuntu:24.04
 
 # Bump OpenCode here (OpenCode 2, npm package @opencode/cli).
+# upgrade: npm @opencode/cli
 ARG OPENCODE_VERSION=2.0.32
 
 ENV DEBIAN_FRONTEND=noninteractive LANG=C.UTF-8 PORT=8080 OPENCODE_DISABLE_AUTOUPDATE=1
